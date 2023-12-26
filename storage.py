@@ -21,8 +21,6 @@ class JSONStorage:
     @staticmethod
     def write_file():
         JSONStorage.create_if_not_exists()
-        print("Writing to file...")
-        print(JSONStorage._data)
         with open(JSONStorage.file_path, "w") as f:
             json.dump(JSONStorage._data, f, cls=DateTimeEncoder)
 
