@@ -56,7 +56,7 @@ class Bank:
             )
             if account.balance >= amount:
                 account.balance -= amount
-                transaction.update_status(TransactionStatus.SUCCESS)
+                transaction.update_status(TransactionStatus.Successful)
                 account.transactions.append(transaction)
                 JSONStorage.save_account(account.model_dump())
                 return Bank.SUCCESS
