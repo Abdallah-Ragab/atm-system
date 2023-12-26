@@ -11,6 +11,13 @@ class TransactionType(str, Enum):
     Transfer = "Transfer"
     Inquiry = "Inquiry"
 
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return self.value
+
+
 class TransactionStatus(str, Enum):
     Successful = "Successful"
     Failed = "Failed"
@@ -68,7 +75,6 @@ class Transaction(BaseModel):
     def update_status(self, status):
         self.status = status
         self.timestamp = datetime.datetime.now()
-
 
     def __str__(self):
         return f"{self.type.title()} Transaction of {self.amount} EGP at {self.timestamp} with status {self.status}"
