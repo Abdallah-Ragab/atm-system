@@ -12,7 +12,7 @@ class TransactionType(str, Enum):
     Inquiry = "Inquiry"
 
 class TransactionStatus(str, Enum):
-    Success = "Success"
+    Successful = "Successful"
     Failed = "Failed"
     Cancelled = "Cancelled"
     Pending = "Pending"
