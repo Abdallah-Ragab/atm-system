@@ -43,11 +43,12 @@ class Bank:
         return Bank.VALID_ACCOUNT_INFO
 
     def validate_account(self, account):
-        if not self.account_exists(account):
-            return Bank.NO_ACCOUNT
-        info = self.validate_account_info(account)
-        if not info == Bank.VALID_ACCOUNT:
-            return info
+        account_exists = self.account_exists(account)
+        if account_exists != Bank.ACCOUNT_EXISTS:
+            return account_exists
+        account_info = self.validate_account_info(account)
+        if account_info != Bank.VALID_ACCOUNT_INFO:
+            return account_info
         return Bank.VALID_ACCOUNT
 
     def add_account(self, account):
