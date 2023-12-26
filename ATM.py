@@ -50,11 +50,6 @@ class Bank:
             return info
         return Bank.VALID_ACCOUNT
 
-    def validate(self, account):
-        code = self.validate_account(account)
-        valid = code == Bank.VALID_ACCOUNT
-        return valid, code.message
-
     def add_account(self, account):
         account_exists = self.account_exists(account)
         if account_exists == Bank.ACCOUNT_EXISTS:
