@@ -11,12 +11,20 @@ class TransactionType(str, Enum):
     Transfer = "Transfer"
     Inquiry = "Inquiry"
 
+class TransactionStatus(str, Enum):
+    Success = "Success"
+    Failed = "Failed"
+    Cancelled = "Cancelled"
+    Pending = "Pending"
+
 
 class Transaction(BaseModel):
+    id: int
     type: TransactionType
     amount: Optional[int] = Field(default=None, validate_default=True)
     account_number: Optional[int] = Field(default=None, validate_default=True)
     timestamp: datetime.datetime = datetime.datetime.now()
+    status: TransactionStatus = TransactionStatus.Pending
 
     @field_validator("amount")
     @classmethod
@@ -36,14 +44,24 @@ class Transaction(BaseModel):
             raise ValueError("account number must be provided for transfer")
         return v
 
-    def generate_receipt(self):
+    def generate_receipt(self, account):
+        _str = f"{account.bank}Bank\n"
         _str = f"******{self.type.title()} Transaction****** \n\n"
+        _str += f"Customer Name: {account.name}\n"
+        _str += f"Customer Account Number: {account.account_number}\n"
         _str += f"Time: {self.timestamp}\n"
         if self.type != TransactionType.Inquiry:
             _str += f"Transaction Amount: {self.amount}\n"
+        else:
+            _str += f"Account Balance: {account.balance}\n"
         if self.type == TransactionType.Transfer:
-            _str += f"Account Number: {self.account_number}\n"
+            _str += f"Receiving Account Number: {self.account_number}\n"
+        _str += f"Transaction Status: {self.status}\n"
         return _str
+
+    def update_status(self, status):
+        self.status = status
+        self.timestamp = datetime.datetime.now()
 
 
 class Account(BaseModel):
@@ -58,7 +76,6 @@ class Account(BaseModel):
     @field_validator("balance")
     @classmethod
     def validate_balance(cls, v, values, **kwargs):
-        print("Validating balance")
         if v < 0:
             raise ValueError("balance must be greater or equal to 0")
         return v
@@ -66,7 +83,6 @@ class Account(BaseModel):
     @field_validator("card")
     @classmethod
     def validate_card(cls, v, values, **kwargs):
-        print("Validating card")
         if v is None:
             return v
         if len(str(v)) != 16:
@@ -76,7 +92,6 @@ class Account(BaseModel):
     @model_validator(mode="after")
     @classmethod
     def validate_card_and_PIN(cls, values, **kwargs):
-        print("Validating card and PIN")
         if values.card is not None and values.PIN is None:
             raise ValueError("PIN must be provided with card")
         return values
@@ -84,7 +99,6 @@ class Account(BaseModel):
     @field_validator("account_number")
     @classmethod
     def validate_account_number(cls, v, values, **kwargs):
-        print("Validating account number")
         if len(str(v)) != 14:
             raise ValueError("account number must be 14 digits")
         return v
