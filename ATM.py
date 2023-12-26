@@ -9,6 +9,7 @@ class Bank:
 
     SUCCESS = CODE('1-000', "Transaction successful.")
     VALID_ACCOUNT = CODE('1-001', "This account is valid.")
+    VALID_ACCOUNT_INFO = CODE('1-001', "The info provided are vaild.")
     ACCOUNT_EXISTS = CODE('1-002', "This account exists.")
 
 
@@ -39,7 +40,7 @@ class Bank:
             return Bank.DIFFERENT_BANK
         if len(account.card) != 16:
             return Bank.INVALID_CARD
-        return Bank.VALID_ACCOUNT
+        return Bank.VALID_ACCOUNT_INFO
 
     def validate_account(self, account):
         if not self.account_exists(account):
@@ -61,10 +62,9 @@ class Bank:
 
         info = self.validate_account_info(account)
 
-        if code == Bank.VALID_ACCOUNT:
-            self.accounts.append(account)
-            return Bank.SUCCESS, code.message
-        return False, code.message
+        if info == self.VALID_ACCOUNT:
+            return info
+
 
     def remove_account(self, account):
         code = self.validate_account(account)
