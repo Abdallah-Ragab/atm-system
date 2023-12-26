@@ -17,6 +17,12 @@ class TransactionStatus(str, Enum):
     Cancelled = "Cancelled"
     Pending = "Pending"
 
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return self.value
+
 
 class Transaction(BaseModel):
     id: int
@@ -62,6 +68,10 @@ class Transaction(BaseModel):
     def update_status(self, status):
         self.status = status
         self.timestamp = datetime.datetime.now()
+
+
+    def __str__(self):
+        return f"{self.type.title()} Transaction of {self.amount} EGP at {self.timestamp} with status {self.status}"
 
 
 class Account(BaseModel):
