@@ -58,15 +58,15 @@ class Transaction(BaseModel):
         return v
 
     def generate_receipt(self, account):
-        _str = f"{account.bank}Bank\n"
-        _str = f"******{self.type.title()} Transaction****** \n\n"
+        _str = f"**********{account.bank} Bank\n"
+        _str += f"******{self.type.title()} Transaction******\n"
         _str += f"Customer Name: {account.name}\n"
         _str += f"Customer Account Number: {account.account_number}\n"
+        _str += f"Account Balance: {account.balance}\n"
+        _str += f"Transaction Type: {self.type}\n"
         _str += f"Time: {self.timestamp}\n"
         if self.type != TransactionType.Inquiry:
             _str += f"Transaction Amount: {self.amount}\n"
-        else:
-            _str += f"Account Balance: {account.balance}\n"
         if self.type == TransactionType.Transfer:
             _str += f"Receiving Account Number: {self.account_number}\n"
         _str += f"Transaction Status: {self.status}\n"
