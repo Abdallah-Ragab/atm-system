@@ -1,6 +1,6 @@
 import datetime
 from storage import JSONStorage
-from account import Account, Transaction, TransactionType, TransactionStatus
+from models import Account, Transaction, TransactionType, TransactionStatus
 
 
 class CODE:
