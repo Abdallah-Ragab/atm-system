@@ -1,5 +1,6 @@
 import json
 import os
+from utils.encoders import DateTimeEncoder
 
 class JSONStorage:
     file_path = "accounts.json"
@@ -20,8 +21,10 @@ class JSONStorage:
     @staticmethod
     def write_file():
         JSONStorage.create_if_not_exists()
+        print("Writing to file...")
+        print(JSONStorage._data)
         with open(JSONStorage.file_path, "w") as f:
-            json.dump(JSONStorage._data, f)
+            json.dump(JSONStorage._data, f, cls=DateTimeEncoder)
 
     @staticmethod
     def save_account(account_dict):
