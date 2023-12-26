@@ -109,8 +109,13 @@ class Account(BaseModel):
     @model_validator(mode="after")
     @classmethod
     def validate_card_and_PIN(cls, values, **kwargs):
-        if values.card is not None and values.PIN is None:
-            raise ValueError("PIN must be provided with card")
+        if values.card is not None:
+            if values.PIN is None:
+                raise ValueError("PIN must be provided with card")
+            if len(values.PIN) != 4:
+                raise ValueError("PIN must be 4 digits")
+            if not values.PIN.isnumeric():
+                raise ValueError("PIN must be digits only")
         return values
 
     @field_validator("account_number")
