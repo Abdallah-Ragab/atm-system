@@ -1,8 +1,10 @@
 import time
 from tkinter import DISABLED, NORMAL, END, Button, Frame, RIDGE, Label, PhotoImage, Tk, Text, messagebox
 from tkinter import PhotoImage
+from bank import Bank
+from safe import SAFE
 
-
+default_account_number = 12345678901234
 Color = "#370053"
 BG = "#fbf3ff"
 
@@ -25,58 +27,104 @@ class ATM:
         self.root.geometry("800x660")
         self.root.config(bg=BG)
 
-        self.display_frames()
-        self.display_assets()
+        self.load_frames()
+        self.load_assets()
         self.welcome()
 
+# ========================================================================================================
     def welcome(self):
-        # Display Large ATM Logo and Welcome Message
         self.display_image("icons/logo.png")
-        self.root.after(500, lambda: self.display_image("icons/welcome.png"))
-        self.root.after(1000, self.get_pin)
+        self.root.after(2000, lambda: self.display_image("icons/welcome.png"))
+        self.root.after(3000, self.card_input)
 
-    def get_pin(self):
-        self.prompt("Please Enter Your PIN Number:", on_enter = self.validate_pin)
+    def card_input(self):
+        self.root.bind("<<ENTER_CLICKED>>", lambda event: self.login())
+        self.display_image("icons/card.png")
 
-    def validate_pin(self, event):
-        pin = self.MEMORY.strip()
-        print("x", pin, "x", sep='')
-        if pin in pins:
-            STORAGE.update({"pin": pin})
-        else :
-            self.display_text("Invalid PIN Number. Please Try Again.")
-            self.root.after(1200, self.get_pin)
-            return
+    def main_menu(self):
+        self.root.unbind("<<CANCEL_CLICKED>>")
+        self.root.unbind("<<ENTER_CLICKED>>")
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.card_input())
+        self.show_button_labels()
+        self.enable_buttons()
 
 
+    def login(self):
+        self.root.unbind("<<CANCEL_CLICKED>>")
+        self.root.unbind("<<ENTER_CLICKED>>")
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.card_input())
+        self.clear_display()
+        self.prompt("Please Enter Your PIN Number:", on_enter= lambda event: self.validate_pin(event))
+
+# ========================================================================================================
 
     def display_image(self, image_path):
-        self.clear_screen()
+        self.clear_display()
         image = PhotoImage(file=image_path)
         self.screen_label = Label(self.SCREEN_FRAME_DISPLAY, image=image, width=317, height=262, relief=RIDGE, bd=0)
         self.screen_label.image = image
         self.screen_label.grid(row=0, column=0)
 
-    def clear_screen(self):
+    def clear_display(self):
         for widget in self.SCREEN_FRAME_DISPLAY.winfo_children():
             widget.grid_forget()
 
-    def display_text(self, text, height=16):
-        self.clear_screen()
-        self.TEXT_AREA = Text(self.SCREEN_FRAME_DISPLAY, height=height, width=45, bd=0, font=('arial',9,'bold'), bg=BG)
-        self.TEXT_AREA.grid(row=0, column=0)
+    def display_text(self, text, height=13):
+        self.clear_display()
+        self.TEXT_AREA = Text(self.SCREEN_FRAME_DISPLAY, height=height, width=30, bd=0, font=('arial',12,'bold'), bg=BG)
+        self.TEXT_AREA.grid(row=0, column=0, padx=10, pady=10)
         self.TEXT_AREA.insert(END, text)
 
-    def prompt(self, text, on_enter):
-
-        self.display_text(text, height=1)
-        self.INPUT_AREA = Text(self.SCREEN_FRAME_DISPLAY, height=1, width=45, bd=0, font=('arial',9,'bold'), bg=BG)
+    def prompt(self, text, on_enter, height=1):
+        self.display_text(text, height)
+        self.INPUT_AREA = Text(self.SCREEN_FRAME_DISPLAY, height=1, width=30, bd=0, font=('arial',12,'bold'), bg=BG)
         self.INPUT_AREA.grid(row=1, column=0)
         self.INPUT_AREA.focus_set()
         self.root.bind("<<ENTER_CLICKED>>", on_enter)
 
+# ========================================================================================================
 
-    def display_frames(self):
+    def show_button_labels(self):
+        self.clear_display()
+
+        self.labelL1.grid(row=0, column=0, pady=20, padx=30, sticky="w")  # Add sticky="w" to align the text to the left
+        self.labelL2.grid(row=1, column=0, pady=20, padx=30, sticky="w")
+        self.labelL3.grid(row=2, column=0, pady=20, padx=30, sticky="w")
+        self.labelL4.grid(row=3, column=0, pady=20, padx=30, sticky="w")
+        self.labelR1.grid(row=0, column=1, pady=20, padx=30, sticky="e")
+        self.labelR2.grid(row=1, column=1, pady=20, padx=30, sticky="e")
+        self.labelR3.grid(row=2, column=1, pady=20, padx=30, sticky="e")
+        self.labelR4.grid(row=3, column=1, pady=20, padx=30, sticky="e")
+
+    def enable_buttons(self):
+        if self.btnArrowR1:
+            self.btnArrowR1.config(state=NORMAL)
+        if self.btnArrowR2:
+            self.btnArrowR2.config(state=NORMAL)
+        if self.btnArrowR3:
+            self.btnArrowR3.config(state=NORMAL)
+        if self.btnArrowR4:
+            self.btnArrowR4.config(state=NORMAL)
+        if self.btnArrowL1:
+            self.btnArrowL1.config(state=NORMAL)
+        if self.btnArrowL2:
+            self.btnArrowL2.config(state=NORMAL)
+        if self.btnArrowL3:
+            self.btnArrowL3.config(state=NORMAL)
+        if self.btnArrowL4:
+            self.btnArrowL4.config(state=NORMAL)
+
+    def disable_buttons(self):
+        self.btnArrowR1.config(state=DISABLED)
+        self.btnArrowR2.config(state=DISABLED)
+        self.btnArrowR3.config(state=DISABLED)
+        self.btnArrowR4.config(state=DISABLED)
+        self.btnArrowL1.config(state=DISABLED)
+        self.btnArrowL2.config(state=DISABLED)
+        self.btnArrowL3.config(state=DISABLED)
+        self.btnArrowL4.config(state=DISABLED)
+
+    def load_frames(self):
         self.MainFrame = Frame(self.root, bd=20, width=784, height=700, relief=RIDGE)
         self.MainFrame.grid()
 
@@ -96,28 +144,40 @@ class ATM:
         self.SCREEN_FRAME_RIGHT = Frame(self.SCREEN_FRAME, bd=5, width=190, height=300, relief=RIDGE, bg=BG)
         self.SCREEN_FRAME_RIGHT.grid(row=0, column=2, padx=3)
 
-    def display_assets(self):
+    def load_assets(self):
+        self.INPUT_AREA = Text(self.SCREEN_FRAME_DISPLAY, height=1, width=30, bd=0, font=('arial',12,'bold'), bg=BG)
 
-        self.img_arrow_Left = PhotoImage(file = "icons/arrow.png")
+        self.img_arrow_Left = PhotoImage(file = "icons/arrow_right.png")
 
-        self.btnArrowL1 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, command=self.WithdrawCash, image=self.img_arrow_Left).grid(row=0, column=0, padx=2, pady=2)
+        self.btnArrowL1 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, command=self.withdraw, image=self.img_arrow_Left)
+        self.btnArrowL1.grid(row=0, column=0, padx=2, pady=2)
+        self.btnArrowL2 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, command=self.balance, image=self.img_arrow_Left)
+        self.btnArrowL2.grid(row=1, column=0, padx=2, pady=2)
+        self.btnArrowL3= Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, command=self.receipt, image=self.img_arrow_Left)
+        self.btnArrowL3.grid(row=2, column=0, padx=2, pady=2)
+        self.btnArrowL4 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, command=self.history, image=self.img_arrow_Left)
+        self.btnArrowL4.grid(row=3, column=0, padx=2, pady=2)
 
-        self.btnArrowL2 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, command=self.WithdrawCash, image=self.img_arrow_Left).grid(row=1, column=0, padx=2, pady=2)
+        self.labelL1 = Label(self.SCREEN_FRAME_DISPLAY, text="Withdraw", font=('arial',12,'bold'), bg=BG)
+        self.labelL2 = Label(self.SCREEN_FRAME_DISPLAY, text="Balance", font=('arial',12,'bold'), bg=BG)
+        self.labelL3 = Label(self.SCREEN_FRAME_DISPLAY, text="Print Receipt", font=('arial',12,'bold'), bg=BG)
+        self.labelL4 = Label(self.SCREEN_FRAME_DISPLAY, text="History", font=('arial',12,'bold'), bg=BG)
 
-        self.btnArrowL3= Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, command=self.balance, image=self.img_arrow_Left).grid(row=2, column=0, padx=2, pady=2)
+        self.img_arrow_Right = PhotoImage(file = "icons/arrow_left.png")
 
-        self.btnArrowL4 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, command=self.statement, image=self.img_arrow_Left).grid(row=3, column=0, padx=2, pady=2)
+        self.btnArrowR1 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, command=self.deposit, image=self.img_arrow_Right)
+        self.btnArrowR1.grid(row=0, column=0, padx=2, pady=2)
+        self.btnArrowR2 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, command=self.transfer, image=self.img_arrow_Right)
+        self.btnArrowR2.grid(row=1, column=0, padx=2, pady=2)
+        self.btnArrowR3 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, command=self.change_pin, image=self.img_arrow_Right)
+        self.btnArrowR3.grid(row=2, column=0, padx=2, pady=2)
+        self.btnArrowR4 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, command=self.eject, image=self.img_arrow_Right)
+        self.btnArrowR4.grid(row=3, column=0, padx=2, pady=2)
 
-
-        self.img_arrow_Right = PhotoImage(file = "icons/images.png")
-
-        self.btnArrowR1 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, command=self.Laon, image=self.img_arrow_Right).grid(row=0, column=0, padx=2, pady=2)
-
-        self.btnArrowR2 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, command=self.Deposit, image=self.img_arrow_Right).grid(row=1, column=0, padx=2, pady=2)
-
-        self.btnArrowR3 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, command=self.Request_new_pin, image=self.img_arrow_Right).grid(row=2, column=0, padx=2, pady=2)
-
-        self.btnArrowR4 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, command=self.statement, image=self.img_arrow_Right).grid(row=3, column=0, padx=2, pady=2)
+        self.labelR1 = Label(self.SCREEN_FRAME_DISPLAY, text="Deposit", font=('arial',12,'bold'), bg=BG, anchor="e")
+        self.labelR2 = Label(self.SCREEN_FRAME_DISPLAY, text="Transfer", font=('arial',12,'bold'), bg=BG, anchor="e")
+        self.labelR3 = Label(self.SCREEN_FRAME_DISPLAY, text="Change PIN", font=('arial',12,'bold'), bg=BG, anchor="e")
+        self.labelR4 = Label(self.SCREEN_FRAME_DISPLAY, text="Eject Card", font=('arial',12,'bold'), bg=BG, anchor="e")
 
 
         self.img1 = PhotoImage(file = "icons/one.png")
@@ -168,130 +228,153 @@ class ATM:
         self.imgSp3 = PhotoImage(file = "icons/empty.png")
         self.btnSp3 = Button(self.NUMBER_PAD_FRAME, width=160, height=60, image=self.imgSp3).grid(row=5, column=3, padx=6, pady=4)
 
-
-    def prompt_pin(self):
-        self.TEXT_AREA.insert(END, "Please Enter Your Pin Number")
-        self.TEXT_AREA.insert(END, "\n")
+# ========================================================================================================
 
     def clear(self):
         self.INPUT_AREA.delete("1.0",END)
+        self.root.event_generate("<<CLEAR_CLICKED>>")
 
     def enter(self):
         self.MEMORY = self.INPUT_AREA.get("1.0",END)
         self.INPUT_AREA.delete("1.0",END)
         self.root.event_generate("<<ENTER_CLICKED>>")
 
-    def disable_buttons(self):
-
-        self.btnArrowR1 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, image=self.img_arrow_Right).grid(row=0, column=0, padx=2, pady=2)
-
-        self.btnArrowR2 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, image=self.img_arrow_Right).grid(row=1, column=0, padx=2, pady=2)
-
-        self.btnArrowR3 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, image=self.img_arrow_Right).grid(row=2, column=0, padx=2, pady=2)
-
-        self.btnArrowR4 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=DISABLED, image=self.img_arrow_Right).grid(row=3, column=0, padx=2, pady=2)
-
-
-        self.btnArrowL1 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, image=self.img_arrow_Left).grid(row=0, column=0, padx=2, pady=2)
-
-        self.btnArrowL2 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, image=self.img_arrow_Left).grid(row=1, column=0, padx=2, pady=2)
-
-        self.btnArrowL3= Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, image=self.img_arrow_Left).grid(row=2, column=0, padx=2, pady=2)
-
-        self.btnArrowL4 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=DISABLED, image=self.img_arrow_Left).grid(row=3, column=0, padx=2, pady=2)
-
-    def enable_buttons(self):
-
-        self.btnArrowR1 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=NORMAL, command=self.Laon, image=self.img_arrow_Right).grid(row=0, column=0, padx=2, pady=2)
-
-        self.btnArrowR2 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=NORMAL, command=self.Deposit, image=self.img_arrow_Right).grid(row=1, column=0, padx=2, pady=2)
-
-        self.btnArrowR3 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=NORMAL, command=self.Request_new_pin, image=self.img_arrow_Right).grid(row=2, column=0, padx=2, pady=2)
-
-        self.btnArrowR4 = Button(self.SCREEN_FRAME_RIGHT, width=160, height=50, state=NORMAL, command=self.statement, image=self.img_arrow_Right).grid(row=3, column=0, padx=2, pady=2)
-
-
-        self.btnArrowL1 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=NORMAL, command=self.WithdrawCash, image=self.img_arrow_Left).grid(row=0, column=0, padx=2, pady=2)
-
-        self.btnArrowL2 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=NORMAL, command=self.WithdrawCash, image=self.img_arrow_Left).grid(row=1, column=0, padx=2, pady=2)
-
-        self.btnArrowL3= Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=NORMAL, command=self.balance, image=self.img_arrow_Left).grid(row=2, column=0, padx=2, pady=2)
-
-        self.btnArrowL4 = Button(self.SCREEN_FRAME_LEFT, width=160, height=50, state=NORMAL, command=self.statement, image=self.img_arrow_Left).grid(row=3, column=0, padx=2, pady=2)
-
     def pad_insert(self, value):
         self.INPUT_AREA.insert(END, value)
 
     def cancel(self):
-        cancel = messagebox.askyesno("ATM","Are you sure you want to cancel the operation and exit?")
-        if cancel > 0:
-            self.root.destroy()
-            return
+        self.root.event_generate("<<CANCEL_CLICKED>>")
 
-    def WithdrawCash (self):
-        self.enter_Pin()
-        self.TEXT_AREA.delete("1.0",END)
-        self.TEXT_AREA.focus_set()
+# ========================================================================================================
 
-    def Laon (self):
-        self.enter_Pin()
-        self.TEXT_AREA.delete("1.0",END)
-        self.TEXT_AREA.insert(END, 'Laon $ ')
-        self.TEXT_AREA.focus_set()
 
-    def Deposit (self):
-        self.enter_Pin()
-        self.TEXT_AREA.delete("1.0",END)
-        self.TEXT_AREA.focus_set()
+    def validate_pin(self, event):
+        pin = self.MEMORY.strip()
+        print(pin)
+        if Bank.validate_pin(int(default_account_number), pin) == Bank.SUCCESS:
+            STORAGE["pin"] = pin
+            self.main_menu()
+        else :
+            print(Bank.validate_pin(int(default_account_number), pin))
+            self.display_text("Invalid PIN Number. Please Try Again.")
+            self.root.after(1200, self.login)
+        self.root.unbind("<<ENTER_CLICKED>>")
 
-    def Request_new_pin(self):
-        self.enter_Pin()
-        self.TEXT_AREA.delete("1.0",END)
-        self.TEXT_AREA.insert(END, '\t\tWelcome to iBank\n')
-        self.TEXT_AREA.insert(END, 'New Pin will be send to your home address\n')
-        self.TEXT_AREA.insert(END, 'Withdraw Cash\t\t\t Loan' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Cash With Receipt\t\t\t Deposit' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Balance\t\t\t Request New Pin' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Mini Statement\t\t\t Print Statement' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, '\t\tThanks for using iBank\n')
+    def withdraw (self):
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.main_menu())
+        self.prompt("Please Enter Amount:", on_enter= lambda event: self.withdraw_amount(event))
+
+    def withdraw_amount(self, event):
+        amount = self.MEMORY.strip()
+        notes = SAFE.withdraw(int(amount))
+
+        if notes == False:
+            self.display_text("Sorry, we can't dispense this amount. Please try again.")
+            self.root.after(1200, self.main_menu)
+
+        text = "Please Take Your Cash\n "
+
+        for note, count in notes.items():
+            text += f"{count} x ${note} = {count * note} EGP\n"
+        text += f"Total: {amount} EGP"
+
+        bank_code = Bank.withdraw(int(default_account_number), amount)
+        if bank_code == Bank.SUCCESS:
+            self.display_text(text)
+            self.root.after(1200, self.main_menu)
+        else:
+            self.display_text(bank_code.message)
+            self.root.after(1200, self.main_menu)
 
     def balance(self):
-        self.TEXT_AREA.delete("1.0",END)
-        self.TEXT_AREA.insert(END, '\t\tWelcome to iBank\n')
-        self.TEXT_AREA.insert(END, '$1296' + "\n")
-        self.TEXT_AREA.insert(END, 'Withdraw Cash\t\t\t Loan' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Cash With Receipt\t\t\t Deposit' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Balance\t\t\t Request New Pin' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Mini Statement\t\t\t Print Statement' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, '\t\tThanks for using iBank\n')
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.main_menu())
+        balance, code = Bank.balance_inquiry(int(default_account_number))
+        if code == Bank.SUCCESS:
+            self.ask_for_receipt(f"Your Balance is {balance} EGP")
+        else:
+            self.ask_for_receipt(code.message)
 
-    def statement(self):
-        pinNo1 = str(self.TEXT_AREA.get("1.0","end-1c"))
-        pinNo2 = str(pinNo1)
-        pinNo3 = float(pinNo2)
-        pinNo4 = float(1296 - (pinNo3))
-        self.TEXT_AREA.delete("1.0",END)
-        self.TEXT_AREA.insert(END, '\n\t' + str(pinNo4) + "\t\t")
-        self.TEXT_AREA.insert(END, '\t\t\t\n\n    Account Balance $' + str(pinNo4) + "\t\t\n\n")
-        self.TEXT_AREA.insert(END, 'Rent \t\t\t\t $1200' + "\n\n")
-        self.TEXT_AREA.insert(END, 'Tesco \t\t\t\t $79.36' + "\n\n")
-        self.TEXT_AREA.insert(END, 'Rent \t\t\t\t $1200' + "\n\n")
-        self.TEXT_AREA.insert(END, 'Sainsbury'+'s \t\t\t\t $53.87'+ "\n\n")
-        self.TEXT_AREA.insert(END, 'Poundland \t\t\t\t $19.00'+ "\n\n")
 
-    def enter_Pin(self):
-        pinNo1 = str(self.TEXT_AREA.get("1.0","end-1c"))
-        pinNo2 = str(pinNo1)
-        pinNo3 = float(pinNo2)
-        pinNo4 = float(1296 - (pinNo3))
-        self.TEXT_AREA.delete("1.0",END)
-        self.TEXT_AREA.insert(END, '\n\t' + str(pinNo4) + "\t\t")
-        self.TEXT_AREA.insert(END, '\t\t\t\n\n    Account Balance $' + str(pinNo4) + "\t\t\n\n")
-        self.TEXT_AREA.insert(END, 'Withdraw Cash\t\t\t Loan' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Cash With Receipt\t\t\t Deposit' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Balance\t\t\t Request New Pin' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, 'Mini Statement\t\t\t Print Statement' + "\n\n\n\n")
-        self.TEXT_AREA.insert(END, '\t\tThanks for using iBank\n')
+    def history(self):
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.main_menu())
+        history, code = Bank.history(int(default_account_number))
+        if code == Bank.SUCCESS:
+            self.display_text(history, height=13)
+        else:
+            self.main_menu()
+
+    def deposit(self):
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.main_menu())
+        self.prompt("Please Enter Amount:", on_enter= lambda event: self.deposit_amount(event))
+
+    def deposit_amount(self, event):
+        amount = self.MEMORY.strip()
+        bank_code = Bank.deposit(int(default_account_number), amount)
+        if bank_code == Bank.SUCCESS:
+            self.ask_for_receipt("Deposit Successful")
+        else:
+            self.ask_for_receipt(bank_code.message)
+
+    def transfer(self):
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.main_menu())
+        self.prompt("Please Enter Account Number:", on_enter= lambda event: self.transfer_account(event))
+
+    def transfer_account(self, event):
+        account_number = self.MEMORY.strip()
+        self.prompt("Please Enter Amount:", on_enter= lambda event: self.transfer_amount(event, account_number))
+
+    def transfer_amount(self, event, account_number):
+        amount = self.MEMORY.strip()
+        bank_code = Bank.transfer(int(default_account_number), int(account_number), amount)
+        if bank_code == Bank.SUCCESS:
+            self.ask_for_receipt("Transfer Successful")
+        else:
+            self.display_text(bank_code.message)
+
+    def receipt(self):
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.main_menu())
+        receipt, code = Bank.print_receipt(int(default_account_number))
+        if code == Bank.SUCCESS:
+            self.display_text(receipt, height=13)
+        else:
+            self.main_menu()
+
+    def ask_for_receipt(self, message):
+        text = f"{message}\n\nWould you like to print a receipt?\n\nPress Enter for Yes\nPress Cancel for No"
+        self.prompt(text, on_enter= lambda event: self.receipt_event(event), height=10)
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.receipt_no())
+        self.root.bind("<<ENTER_CLICKED>>", lambda event: self.receipt_yes())
+
+    def receipt_yes(self):
+
+        # self.root.unbind("<<CANCEL_CLICKED>>")
+        self.root.unbind("<<ENTER_CLICKED>>")
+        self.receipt()
+
+    def receipt_no(self):
+        self.root.unbind("<<CANCEL_CLICKED>>")
+        self.root.unbind("<<ENTER_CLICKED>>")
+        self.main_menu()
+
+
+    def change_pin(self):
+        self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.main_menu())
+        self.prompt("Please Enter New PIN Number:", on_enter= lambda event: self.change_pin_number(event))
+
+    def change_pin_number(self, event):
+        pin = self.MEMORY.strip()
+        bank_code = Bank.change_pin(int(default_account_number), pin)
+        if bank_code == Bank.SUCCESS:
+            self.display_text("PIN Changed Successfully")
+            self.root.after(1200, self.main_menu)
+        else:
+            self.display_text(bank_code.message)
+            self.root.after(1200, self.main_menu)
+
+    def eject(self):
+        self.display_text("Please Take Your Card")
+        self.root.after(1200, self.card_input)
+
 
 
 if __name__ == "__main__":
