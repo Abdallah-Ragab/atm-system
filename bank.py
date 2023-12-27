@@ -5,6 +5,7 @@ from models import Account, Transaction, TransactionType, TransactionStatus
 
 class CODE:
     positive = False
+
     def __init__(self, code, message):
         self.code = code
         self.message = message
@@ -15,6 +16,7 @@ class CODE:
             return f"INFO(code:{self.code}): {self.message}"
         else:
             return f"ERROR(code:{self.code}): {self.message}"
+
     def __repr__(self):
         return self.__str__()
 
@@ -107,9 +109,7 @@ class Bank:
         account = Bank._get_account(account_number)
         if isinstance(account, Account):
             last_transaction_id = Bank._last_transaction_id(account)
-            transaction = Transaction(
-                id=last_transaction_id + 1, type=transaction_type
-            )
+            transaction = Transaction(id=last_transaction_id + 1, type=transaction_type)
             balance = account.balance
             transaction.update_status(TransactionStatus.Successful)
             account.transactions.append(transaction)
@@ -127,7 +127,10 @@ class Bank:
         if isinstance(account, Account):
             last_transaction_id = Bank._last_transaction_id(account)
             transaction = Transaction(
-                id=last_transaction_id + 1, type=transaction_type, amount=amount, account_number=target_account_number
+                id=last_transaction_id + 1,
+                type=transaction_type,
+                amount=amount,
+                account_number=target_account_number,
             )
             print(transaction)
 
@@ -167,6 +170,16 @@ class Bank:
                 return Bank.SUCCESS
             except ValueError as e:
                 return Bank.INVALID_PIN
+        else:
+            return Bank.NO_ACCOUNT
+
+    def validate_pin(account_number, PIN):
+        account = Bank._get_account(account_number)
+        if isinstance(account, Account):
+            if account.PIN != PIN:
+                return Bank.WRONG_PIN
+            else:
+                return Bank.SUCCESS
         else:
             return Bank.NO_ACCOUNT
 
