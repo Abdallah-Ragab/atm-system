@@ -4,7 +4,7 @@ from tkinter import PhotoImage
 from bank import Bank
 from safe import SAFE
 
-default_account_number = 12345678901234
+default_account_number = 11111111111111
 Color = "#370053"
 BG = "#fbf3ff"
 
