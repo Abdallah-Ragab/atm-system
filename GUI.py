@@ -275,16 +275,14 @@ class ATM:
         text = "Please Take Your Cash\n "
 
         for note, count in notes.items():
-            text += f"{count} x ${note} = {count * note} EGP\n"
+            text += f"{count} x {note}EGP = {count * note} EGP\n"
         text += f"Total: {amount} EGP"
 
         bank_code = Bank.withdraw(int(default_account_number), amount)
         if bank_code == Bank.SUCCESS:
-            self.display_text(text)
-            self.root.after(1200, self.main_menu)
+            self.ask_for_receipt(text)
         else:
-            self.display_text(bank_code.message)
-            self.root.after(1200, self.main_menu)
+            self.ask_for_receipt(bank_code.message)
 
     def balance(self):
         self.root.bind("<<CANCEL_CLICKED>>", lambda event: self.main_menu())
