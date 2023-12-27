@@ -114,7 +114,7 @@ class Bank:
             transaction.update_status(TransactionStatus.Successful)
             account.transactions.append(transaction)
             JSONStorage.save_account(account.model_dump())
-            return balance
+            return balance, Bank.SUCCESS
         else:
             return Bank.NO_ACCOUNT
 
@@ -171,7 +171,14 @@ class Bank:
             return Bank.NO_ACCOUNT
 
     def history(account_number):
-        pass
+        account = Bank._get_account(account_number)
+        if isinstance(account, Account):
+            history_str = ""
+            for transaction in account.transactions:
+                history_str += str(transaction) + "\n"
+            return history_str, Bank.SUCCESS
+        else:
+            return Bank.NO_ACCOUNT
 
     @staticmethod
     def _save_transaction(transaction, account):
@@ -204,81 +211,3 @@ class Bank:
                 return Bank.INVALID_ACCOUNT
         else:
             return Bank.NO_ACCOUNT
-
-
-class SAFE:
-    DEFAULT_NOTES = {20: 100, 50: 100, 100: 100, 200: 100}
-    NOTES = DEFAULT_NOTES.copy()
-
-    @staticmethod
-    def withdraw_note(note, amount):
-        if note in SAFE.NOTES:
-            if SAFE.NOTES[note] >= amount:
-                SAFE.NOTES[note] -= amount
-                return True
-        return False
-
-    @staticmethod
-    def deposit_note(note, amount):
-        if note in SAFE.NOTES:
-            SAFE.NOTES[note] += amount
-            return True
-        return False
-
-    @staticmethod
-    @property
-    def balance():
-        for note, count in SAFE.NOTES.items():
-            print(f"{note} EGP notes: {count}")
-
-
-# class Account:
-#     def __init__(self, name, balance, card, PIN):
-#         self.name = name
-#         self.balance = balance
-#         self.card = card
-#         self.PIN = PIN
-
-#     def deposit(self, amount):
-#         self.balance += amount
-
-#     def withdraw(self, amount):
-#         if self.balance >= amount:
-#             self.balance -= amount
-#             return True
-#         return False
-
-#     def change_PIN(self, new_PIN):
-#         self.PIN = new_PIN
-
-#     def validate(self, card, PIN):
-#         if self.card == card and self.PIN == PIN:
-#             return True
-#         return False
-
-
-# class Printer:
-#     @staticmethod
-#     def print_receipt(account, amount, transaction_type):
-#         print(f"Account Name: {account.name}")
-#         print(f"Account Balance: {account.balance}")
-#         print(f"Transaction Type: {transaction_type}")
-#         print(f"Transaction Amount: {amount}")
-#         print(f"New Balance: {account.balance}")
-#         print(f"Time: {datetime.now()}")
-
-
-# class Transaction:
-#     types = ["Withdraw", "Deposit"]
-#     statuses = ["Success", "Failed", "Cancelled", "Pending"]
-
-#     def __init__(self, account, amount, transaction_type, status="Pending"):
-#         self.account = account
-#         self.amount = amount
-#         self.transaction_type = transaction_type
-#         self.transaction_time = datetime.now()
-#         self.status = status
-
-
-# class ATM:
-#     banks = {}
