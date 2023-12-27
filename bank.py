@@ -45,9 +45,8 @@ class Bank:
         account = Bank._get_account(account_number)
         if isinstance(account, Account):
             transaction = account.transactions[-1]
-            print(transaction.generate_receipt(account))
-            return Bank.SUCCESS
-        return Bank.NO_ACCOUNT
+            return transaction.generate_receipt(account), Bank.SUCCESS
+        return None, Bank.NO_ACCOUNT
 
     @staticmethod
     def withdraw(account_number, amount):
@@ -116,7 +115,7 @@ class Bank:
             JSONStorage.save_account(account.model_dump())
             return balance, Bank.SUCCESS
         else:
-            return Bank.NO_ACCOUNT
+            return None, Bank.NO_ACCOUNT
 
     def transfer(account_number, target_account_number, amount):
         transaction_type = TransactionType.Transfer
