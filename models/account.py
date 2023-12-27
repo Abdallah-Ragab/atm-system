@@ -58,8 +58,8 @@ class Transaction(BaseModel):
         return v
 
     def generate_receipt(self, account):
-        _str = f"**********{account.bank} Bank**********\n"
-        _str += f"******{self.type.title()} Transaction******\n"
+        _str = f"         {account.bank} Bank\n"
+        _str += f"      {self.type.title()} Transaction\n"
         _str += f"Customer Name: {account.name}\n"
         _str += f"Customer Account Number: {account.account_number}\n"
         _str += f"Account Balance: {account.balance}\n"
@@ -70,7 +70,6 @@ class Transaction(BaseModel):
         if self.type == TransactionType.Transfer:
             _str += f"Receiving Account Number: {self.account_number}\n"
         _str += f"Transaction Status: {self.status}\n"
-        _str += f"************************************\n"
         return _str
 
     def update_status(self, status):
@@ -78,7 +77,12 @@ class Transaction(BaseModel):
         self.timestamp = datetime.datetime.now()
 
     def __str__(self):
-        return f"{self.type.title()} Transaction of {self.amount} EGP at {self.timestamp} with status {self.status}"
+        _str = f"{self.type.title()} Transaction"
+        if self.amount:
+            _str += f" of {self.amount} EGP"
+        _str += f" at {self.timestamp}"
+        _str += f" with status {self.status}"
+        return _str
 
 
 class Account(BaseModel):
