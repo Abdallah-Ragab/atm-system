@@ -201,4 +201,4 @@ def test_two_algorithms():
     print(f"Brute Force Success: {brute_force_success}")
     print(f"Dynamic Programming Success: {dynamic_programming_success}")
 
-test_two_algorithms()
+# test_two_algorithms()
